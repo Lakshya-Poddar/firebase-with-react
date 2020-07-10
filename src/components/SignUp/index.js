@@ -1,6 +1,8 @@
 import React, { Component, useContext } from "react";
 import { Link, withRouter } from "react-router-dom";
 import * as Routes from "../../constants/routes";
+import * as ROLES from '../../constants/roles'
+
 import { FirebaseContext } from "../Firebase";
 const SignUpPage = () => {
   const firebase = useContext(FirebaseContext);
@@ -17,6 +19,7 @@ const INITIAL_STATE = {
   email: "",
   password1: "",
   password2: "",
+  isAdmin: false,
   error: null,
 };
 
@@ -30,18 +33,32 @@ class SignUpFormBase extends Component {
   }
 
   onSubmit = (event) => {
-    const { password1, email } = this.state;
+    const { username, password1, email,isAdmin } = this.state;
+    const roles={};
+    if(isAdmin)
+    roles[ROLES.ADMIN]=ROLES.ADMIN;
     this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password1)
       .then((authUser) => {
+        return this.props.firebase.user(authUser.user.uid).set({
+          username,
+          email,
+          roles
+        });
+      })
+      .then(() => {
         this.setState({ ...INITIAL_STATE });
         this.props.history.push(Routes.HOME);
       })
-      
+
       .catch((error) => {
         this.setState({ error });
       });
     event.preventDefault();
+  };
+
+  onChangeCheckbox = (event) => {
+    this.setState({ [event.target.name]: event.target.checked });
   };
 
   onChange = (event) => {
@@ -51,7 +68,14 @@ class SignUpFormBase extends Component {
   };
 
   render() {
-    const { username, email, password1, password2, error } = this.state;
+    const {
+      username,
+      email,
+      password1,
+      password2,
+      isAdmin,
+      error,
+    } = this.state;
     const isInvalid =
       password1 !== password2 ||
       password1 === "" ||
@@ -89,6 +113,15 @@ class SignUpFormBase extends Component {
           type="password"
           placeholder="Confirm Password"
         />
+        <label>
+          Admin:
+          <input
+            name="isAdmin"
+            type="checkbox"
+            checked={isAdmin}
+            onChange={this.onChangeCheckbox}
+          />
+        </label>
         <button type="submit" disabled={isInvalid}>
           SignUp
         </button>
