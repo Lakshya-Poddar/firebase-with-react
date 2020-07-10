@@ -21,11 +21,14 @@ class App extends Component {
   static contextType = FirebaseContext;
   componentDidMount() {
     const firebase = this.context;
-    this.listener = firebase.auth.onAuthStateChanged((authUser) => {
-      authUser
-        ? this.setState({ authUser })
-        : this.setState({ authUser: null });
-    });
+    this.listener = firebase.onAuthUserListener(
+      (authUser)=>{
+        this.setState({authUser})
+      },
+      ()=>{
+        this.setState({authUser:null})
+      }
+    )
   }
   componentWillUnmount() {
     this.listener();

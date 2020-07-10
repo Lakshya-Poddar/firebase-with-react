@@ -29,10 +29,35 @@ class Firebase {
 
   doPasswordUpdate = (password) =>
     this.auth.currentUser.updatePassword(password);
-
+  // database
   user = (uid) => this.db.ref(`users/${uid}`);
 
   users = () => this.db.ref('users');
+  // Merge Auth And Database
+  onAuthUserListener=(next,fallback)=>{
+    this.auth.onAuthStateChanged(authUser=>{
+      if(authUser)
+      {this.user(authUser.uid)
+      .once('value')
+      .then(snapshot=>{
+        const dbUser=snapshot.val();
+
+        if(!dbUser.roles){
+          dbUser.roles={}
+        }
+        authUser={
+          uid:authUser.uid,
+          email:authUser.email,
+          ...dbUser
+        }
+        next(authUser)
+      })}
+      else
+      {
+        fallback();
+      }
+    })
+  }
 }
 
 export default Firebase;
