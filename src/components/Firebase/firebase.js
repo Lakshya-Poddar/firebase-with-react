@@ -37,13 +37,14 @@ class Firebase {
   onAuthUserListener=(next,fallback)=>{
     this.auth.onAuthStateChanged(authUser=>{
       if(authUser)
-      {this.user(authUser.uid)
+      {
+      this.user(authUser.uid)
       .once('value')
       .then(snapshot=>{
-        const dbUser=snapshot.val();
+        var dbUser=snapshot.val();
 
         if(!dbUser.roles){
-          dbUser.roles={}
+          dbUser.roles={'ADMIN':null};
         }
         authUser={
           uid:authUser.uid,

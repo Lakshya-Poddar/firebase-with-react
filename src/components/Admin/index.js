@@ -1,5 +1,8 @@
 import React, { Component, useContext } from "react";
 import { FirebaseContext } from "../Firebase";
+import * as ROLES from "../../constants/roles";
+import { withAuthorization } from "../Session";
+
 export class AdminPage extends Component {
   static contextType = FirebaseContext;
   constructor(props) {
@@ -62,4 +65,6 @@ const UserList = ({ users }) => (
   </ul>
 );
 
-export default AdminPage;
+const condition = (authUser) => authUser && !!authUser.roles[ROLES.ADMIN];
+
+export default withAuthorization(condition)(AdminPage);
