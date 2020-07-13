@@ -11,11 +11,12 @@ import AccountPage from "../Account";
 import AdminPage from "../Admin";
 import { FirebaseContext } from "../Firebase";
 import {AuthUserContext} from '../Session'
+import { auth } from "firebase";
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      authUser: {},
+      authUser: JSON.parse(localStorage.getItem('authUser')),
     };
   }
   static contextType = FirebaseContext;
@@ -23,9 +24,11 @@ class App extends Component {
     const firebase = this.context;
     this.listener = firebase.onAuthUserListener(
       (authUser)=>{
+        localStorage.setItem('authUser',JSON.stringify(authUser));
         this.setState({authUser})
       },
       ()=>{
+        localStorage.removeItem('authUser');
         this.setState({authUser:null})
       }
     )
