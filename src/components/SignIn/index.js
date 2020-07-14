@@ -12,6 +12,7 @@ const SignInPage = () => {
       <h1>SignIN</h1>
       <SignInForm firebase={firebase} />
       <SignInGoogle firebase={firebase} />
+      <SignInFacebook firebase={firebase}/>
       <SignUpLink />
       <PasswordForgetLink />
     </div>
@@ -23,6 +24,48 @@ const INITIAL_STATE = {
   password: "",
   error: "",
 };
+class SignInFacebookBase extends Component{
+  constructor(props) {
+    super(props)
+  
+    this.state = {
+       error:null
+    }
+  }
+  onSubmit=event=>{
+      this.props.firebase
+      .doSignInWithFacebook()
+      .then((socialAuthUser)=>{
+        return this.props.firebase
+        .user(socialAuthUser.user.uid)
+        .set({
+          username:socialAuthUser.additionalUserInfo.profile.name,
+          email:socialAuthUser.additionalUserInfo.profile.email,
+          roles:{'ADMIN':null}
+        })
+      })
+      .then(()=>{
+        this.setState({error:null});
+        this.props.history.push(ROUTES.HOME);
+      })
+      .catch(error=>{
+        this.setState({error});
+      })
+      event.preventDefault();
+  }
+  render(){
+    const {error}= this.state;
+    return(
+      <form onSubmit={this.onSubmit}>
+        <button type="submit">Sign In With Facebook</button>
+        {error&&<p>{error.message}</p>}
+      </form>
+    )
+  }
+  
+
+}
+const SignInFacebook=withRouter(SignInFacebookBase);
 
 class SignInGoogleBase extends Component{
   constructor(props) {
