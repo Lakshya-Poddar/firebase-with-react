@@ -4,7 +4,15 @@ import { withRouter } from "react-router-dom";
 import { SignUpLink } from "../SignUp";
 import { FirebaseContext } from "../Firebase";
 import * as ROUTES from "../../constants/routes";
-import {PasswordForgetLink} from '../PasswordForget'
+import {PasswordForgetLink} from '../PasswordForget';
+
+const ERROR_CODE_ACCOUNT_EXISTS =
+'auth/account-exists-with-different-credential';
+const ERROR_MSG_ACCOUNT_EXISTS = `
+An account with an E-Mail address to
+this social account already exists. Try to login from
+this account instead and associate your social accounts on
+your personal account page`
 const SignInPage = () => {
   const firebase = useContext(FirebaseContext);
   return (
@@ -13,6 +21,7 @@ const SignInPage = () => {
       <SignInForm firebase={firebase} />
       <SignInGoogle firebase={firebase} />
       <SignInFacebook firebase={firebase}/>
+      {/* SAME FOR TWITTER LOGIN ACCOUNT */}
       <SignUpLink />
       <PasswordForgetLink />
     </div>
@@ -49,6 +58,8 @@ class SignInFacebookBase extends Component{
         this.props.history.push(ROUTES.HOME);
       })
       .catch(error=>{
+        if(error.code===ERROR_CODE_ACCOUNT_EXISTS)
+        error.message=ERROR_MSG_ACCOUNT_EXISTS
         this.setState({error});
       })
       event.preventDefault();
@@ -92,6 +103,8 @@ class SignInGoogleBase extends Component{
         this.props.history.push(ROUTES.HOME);
       })
       .catch(error=>{
+        if(error.code===ERROR_CODE_ACCOUNT_EXISTS)
+        error.message=ERROR_MSG_ACCOUNT_EXISTS
         this.setState({error});
       })
       event.preventDefault();

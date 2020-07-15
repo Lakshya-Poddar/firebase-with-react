@@ -27,6 +27,7 @@ const withAuthorization = (condition) => (Component) => {
 
     render() {
       return (
+        //authusercontext.consumer
         <Component {...this.props} /> 
       );
     }
